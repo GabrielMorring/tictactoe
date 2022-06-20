@@ -8,6 +8,7 @@ function App() {
   const [showBoard, setShowBoard] = useState(false);
   const [userName, setUserName] = useState("");
   const [room, setRoom] = useState("");
+  const [player, setPlayer] = useState("");
 
   const joinRoom = () => {
     if (userName !== "" && room !== "") {

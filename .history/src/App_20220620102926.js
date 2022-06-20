@@ -1,5 +1,5 @@
 import Board from "./components/Board";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import io from "socket.io-client";
 
 const socket = io.connect("http://localhost:3001");
@@ -11,7 +11,7 @@ function App() {
 
   const joinRoom = () => {
     if (userName !== "" && room !== "") {
-      socket.emit("join_room", { room: room, id: socket.id });
+      socket.emit("join_room", room);
       setShowBoard(true);
     } else {
       alert("Please enter a username and room");
@@ -37,7 +37,7 @@ function App() {
             onChange={(e) => setRoom(e.target.value)}
           />
           <button
-            className="bg-purple-600 px-8 py-1 m-2 rounded text-white hover:bg-purple-700"
+            className="bg-purple-600 px-8 py-1 m-2 rounded"
             onClick={joinRoom}
           >
             Join A Room

@@ -2,12 +2,13 @@ import Board from "./components/Board";
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
 
-const socket = io.connect("http://localhost:3001");
-
 function App() {
   const [showBoard, setShowBoard] = useState(false);
   const [userName, setUserName] = useState("");
   const [room, setRoom] = useState("");
+  const [player, setPlayer] = useState("");
+
+  const socket = io.connect("http://localhost:3001");
 
   const joinRoom = () => {
     if (userName !== "" && room !== "") {

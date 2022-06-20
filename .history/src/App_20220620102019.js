@@ -1,5 +1,5 @@
 import Board from "./components/Board";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import io from "socket.io-client";
 
 const socket = io.connect("http://localhost:3001");
@@ -11,7 +11,7 @@ function App() {
 
   const joinRoom = () => {
     if (userName !== "" && room !== "") {
-      socket.emit("join_room", { room: room, id: socket.id });
+      socket.emit("join_room", room);
       setShowBoard(true);
     } else {
       alert("Please enter a username and room");
@@ -23,25 +23,20 @@ function App() {
       {showBoard ? (
         <Board socket={socket} userName={userName} room={room} />
       ) : (
-        <div className="flex flex-col w-72 mx-auto my-60 items-center">
+        <div className="flex flex-col w-72 mx-auto justify-items-center">
           <input
-            className="w-full p-2 m-2 border border-purple-600 rounded focus:outline-none"
+            className="w-full p-2 m-2 border border-purple-600 rounded"
             type="text"
             placeholder="John..."
             onChange={(e) => setUserName(e.target.value)}
           />
           <input
-            className="w-full p-2 m-2 border border-purple-600 rounded focus:outline-none"
+            className="w-full p-2 m-2 border border-gray-500 rounded"
             type="text"
             placeholder="Room ID..."
             onChange={(e) => setRoom(e.target.value)}
           />
-          <button
-            className="bg-purple-600 px-8 py-1 m-2 rounded text-white hover:bg-purple-700"
-            onClick={joinRoom}
-          >
-            Join A Room
-          </button>
+          <button onClick={joinRoom}>Join A Room</button>
         </div>
       )}
     </div>

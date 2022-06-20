@@ -8,20 +8,32 @@ function App() {
   const [showBoard, setShowBoard] = useState(false);
   const [userName, setUserName] = useState("");
   const [room, setRoom] = useState("");
+  const [player, setPlayer] = useState("");
 
   const joinRoom = () => {
     if (userName !== "" && room !== "") {
       socket.emit("join_room", { room: room, id: socket.id });
-      setShowBoard(true);
     } else {
       alert("Please enter a username and room");
     }
   };
 
+  useEffect(() => {
+    socket.on("set_player", (data) => {
+      setPlayer(data);
+      setShowBoard(true);
+    });
+  }, []);
+
   return (
     <div className="">
       {showBoard ? (
-        <Board socket={socket} userName={userName} room={room} />
+        <Board
+          socket={socket}
+          userName={userName}
+          room={room}
+          player={player}
+        />
       ) : (
         <div className="flex flex-col w-72 mx-auto my-60 items-center">
           <input
