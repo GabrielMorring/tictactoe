@@ -21,7 +21,7 @@ function checkWinner(squares) {
   return null;
 }
 
-function Board({ socket, userName, room }) {
+function Board({ socket, room }) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isX, setIsX] = useState(false);
   const [turn, setTurn] = useState(false);
@@ -35,25 +35,27 @@ function Board({ socket, userName, room }) {
 
   useEffect(() => {
     socket.on("receive_move", (data) => {
-      alert("received move");
       setSquares(data.squares);
-      console.log(squares);
+
       setTurn(true);
-      console.log(turn);
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on("receive_restart", (data) => {
+      console.log(`recieved restart`);
+      handleRestart(false);
     });
   }, [socket]);
 
   const handleClick = (i) => {
-    console.log(turn);
-    if (!turn) {
-      return;
+    if (!squares[i] && turn) {
+      squares[i] = isX ? "X" : "O";
+      setSquares(squares);
+      console.log(squares);
+      socket.emit("do_move", { squares: squares, room: room, isGame: true });
+      setTurn(false);
     }
-    squares[i] = isX ? "X" : "O";
-    setSquares(squares);
-    console.log(squares);
-    socket.emit("do_move", { squares: squares, room: room });
-    setTurn(false);
-    console.log(turn);
   };
 
   let winner = checkWinner(squares);
@@ -61,18 +63,28 @@ function Board({ socket, userName, room }) {
 
   if (winner) {
     status = `${winner} won!`;
-  } else {
-    status = (isX ? "X" : "O") + "'s turn";
+  } else if (isX) {
+    status = (turn ? "X" : "O") + "'s turn";
+  } else if (!isX) {
+    status = (!turn ? "X" : "O") + "'s turn";
   }
 
-  if (squares.every((square) => square !== null)) {
+  if (squares.every((square) => square !== null) && !winner) {
     status = "You Tied, BORING!";
   }
 
-  const handleRestart = () => {
-    setIsX(true);
+  function handleRestart(clicked = true) {
+    if (isX) {
+      setTurn(true);
+    } else if (!isX) {
+      setTurn(false);
+    }
+
     setSquares(Array(9).fill(null));
-  };
+    if (clicked) {
+      socket.emit("send_restart", { room: room });
+    }
+  }
 
   return (
     <div className="m-auto max-w-md mt-8 ">
@@ -93,7 +105,7 @@ function Board({ socket, userName, room }) {
         <Square value={squares[8]} onClick={() => handleClick(8)} />
       </div>
       <div className="my-5 font-sans font-bold text-lg">{status}</div>
-      {status !== "X's turn" && status !== "O's turn" && (
+      {status !== "X's turn" && status !== "O's turn" && isX === true && (
         <button
           className="bg-slate-500 p-3 rounded hover:bg-slate-700 hover:text-white focus:outline-none"
           onClick={() => handleRestart()}
