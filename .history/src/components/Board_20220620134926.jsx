@@ -24,28 +24,26 @@ function checkWinner(squares) {
 function Board({ socket, userName, room }) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isX, setIsX] = useState(false);
-  const [turn, setTurn] = useState(false);
 
   useEffect(() => {
     socket.on("set_player", (data) => {
-      setIsX(true);
-      setTurn(true);
+      setIsX(data.player1);
     });
   }, [socket]);
+
+  const [turn, setTurn] = useState(isX ? true : false);
 
   useEffect(() => {
     socket.on("receive_move", (data) => {
       alert("received move");
-      setSquares(data.squares);
+      setSquares(data);
       console.log(squares);
       setTurn(true);
-      console.log(turn);
     });
   }, [socket]);
 
   const handleClick = (i) => {
-    console.log(turn);
-    if (!turn) {
+    if (turn) {
       return;
     }
     squares[i] = isX ? "X" : "O";
@@ -53,7 +51,6 @@ function Board({ socket, userName, room }) {
     console.log(squares);
     socket.emit("do_move", { squares: squares, room: room });
     setTurn(false);
-    console.log(turn);
   };
 
   let winner = checkWinner(squares);

@@ -24,14 +24,14 @@ function checkWinner(squares) {
 function Board({ socket, userName, room }) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isX, setIsX] = useState(false);
-  const [turn, setTurn] = useState(false);
 
   useEffect(() => {
     socket.on("set_player", (data) => {
-      setIsX(true);
-      setTurn(true);
+      setIsX(data.player1);
     });
   }, [socket]);
+
+  const [turn, setTurn] = useState(isX ? true : false);
 
   useEffect(() => {
     socket.on("receive_move", (data) => {
@@ -44,8 +44,7 @@ function Board({ socket, userName, room }) {
   }, [socket]);
 
   const handleClick = (i) => {
-    console.log(turn);
-    if (!turn) {
+    if (turn) {
       return;
     }
     squares[i] = isX ? "X" : "O";
